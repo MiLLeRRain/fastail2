@@ -33,6 +33,166 @@ This project implements a pet breed classification system with the following fea
 └── README.md         # Project documentation
 ```
 
+## Dataset Preparation
+## 数据集准备
+
+Use the provided script to download and extract the Oxford-IIIT Pet Dataset:
+使用提供的脚本下载并解压 Oxford-IIIT Pet Dataset：
+
+```bash
+# Download and extract the dataset
+# 下载并解压数据集
+./download_dataset.sh
+```
+
+This will automatically download and prepare the dataset in the correct format for training.
+这将自动下载数据集并准备好用于训练的正确格式。
+
+## Run Trainer Script Usage
+## 训练脚本使用说明
+
+The `run_trainer.sh` script provides a convenient way to manage model training with different configurations.
+`run_trainer.sh` 脚本提供了一种便捷的方式来管理不同配置的模型训练。
+
+### Basic Usage
+### 基本用法
+
+```bash
+# Start training with default settings
+# 使用默认设置开始训练
+./run_trainer.sh
+
+# Force retrain the model
+# 强制重新训练模型
+./run_trainer.sh --retrain
+
+# Quick training mode (1 epoch each phase)
+# 快速训练模式（每个阶段1轮）
+./run_trainer.sh --quick-train
+```
+
+### Advanced Usage
+### 高级用法
+
+```bash
+# Custom epochs and learning rates
+# 自定义训练轮次和学习率
+./run_trainer.sh --retrain \
+    --epochs-frozen 5 \
+    --epochs-unfrozen 10 \
+    --lr-frozen 1e-3 \
+    --lr-unfrozen 1e-5
+
+# Train with larger image size
+# 使用更大的图片尺寸训练
+./run_trainer.sh --retrain \
+    --image-size 448 \
+    --batch-size 16
+
+# Save model to custom path
+# 将模型保存到自定义路径
+./run_trainer.sh --retrain \
+    --model-path models/custom_model.pkl
+```
+
+### Environment Variables
+### 环境变量
+
+You can configure the following environment variables before running the script:
+在运行脚本之前，你可以配置以下环境变量：
+
+```bash
+# Set CUDA device
+# 设置 CUDA 设备
+export CUDA_VISIBLE_DEVICES=0
+
+# Set number of workers for data loading
+# 设置数据加载的工作进程数
+export NUM_WORKERS=4
+```
+
+## Docker Deployment
+## Docker 部署
+
+1. Build Docker image:
+1. 构建 Docker 镜像：
+```bash
+docker build -t pet-classifier .
+```
+
+2. Run container with different configurations:
+2. 使用不同配置运行容器：
+
+### Basic run (use existing model if available, train if not):
+### 基本运行（如果有现有模型则使用，否则训练）：
+```bash
+docker run --gpus all --shm-size=1g -p 7860:7860 \
+    -v ./data:/app/data \
+    -v ./models:/app/models \
+    --name pet-classifier \
+    --rm pet-classifier
+```
+
+### Force retrain (ignore existing model):
+### 强制重新训练（忽略现有模型）：
+```bash
+docker run --gpus all --shm-size=1g -p 7860:7860 \
+    -v ./data:/app/data \
+    -v ./models:/app/models \
+    --name pet-classifier \
+    --rm pet-classifier \
+    python src/pet_classifier.py --retrain
+```
+
+### Use specific model without training:
+### 使用指定模型（不进行训练）：
+```bash
+docker run --gpus all --shm-size=1g -p 7860:7860 \
+    -v ./data:/app/data \
+    -v ./models:/app/models \
+    --name pet-classifier \
+    --rm pet-classifier \
+    python src/pet_classifier.py --model-path models/my_custom_model.pkl
+```
+
+### Quick training mode (1 epoch each phase):
+### 快速训练模式（每个阶段 1 轮）：
+```bash
+docker run --gpus all --shm-size=1g -p 7860:7860 \
+    -v ./data:/app/data \
+    -v ./models:/app/models \
+    --name pet-classifier \
+    --rm pet-classifier \
+    python src/pet_classifier.py --retrain --quick-train
+```
+
+### Custom Training Epochs:
+### 自定义训练轮次：
+```bash
+docker run --gpus all --shm-size=1g -p 7860:7860 \
+    -v ./data:/app/data \
+    -v ./models:/app/models \
+    --name pet-classifier \
+    --rm pet-classifier \
+    python src/pet_classifier.py --retrain --epochs-frozen 5 --epochs-unfrozen 10
+```
+
+### Full training with custom configuration:
+### 使用自定义配置的完整训练：
+```bash
+docker run --gpus all --shm-size=1g -p 7860:7860 \
+    -v ./data:/app/data \
+    -v ./models:/app/models \
+    --name pet-classifier \
+    --rm pet-classifier \
+    python src/pet_classifier.py --retrain \
+        --epochs-frozen 5 \
+        --epochs-unfrozen 10 \
+        --lr-frozen 1e-3 \
+        --lr-unfrozen 1e-5 \
+        --model-path models/custom_model.pkl
+```
+
 ## Development Environment
 ## 开发环境
 
@@ -49,21 +209,6 @@ This project implements a pet breed classification system with the following fea
 - JupyterLab (development environment)
 - Gradio (Web UI)
 - Docker (deployment)
-
-## Dataset Preparation
-## 数据集准备
-
-This project uses the Oxford-IIIT Pet Dataset, which contains 37 pet breeds (25 dogs and 12 cats).
-本项目使用 Oxford-IIIT Pet Dataset，包含37种宠物品种（25种狗和12种猫）。
-
-### Automatic Dataset Download and Preparation
-### 自动下载和准备数据集
-
-1. Use the provided script:
-1. 使用提供的脚本：
-```bash
-bash download_dataset.sh
-```
 
 ## Setup Instructions
 ## 安装说明
@@ -173,154 +318,6 @@ python src/pet_classifier.py --retrain --quick-train
 ```bash
 python src/pet_classifier.py --retrain --image-size 448 --batch-size 16
 ```
-
-## Docker Deployment
-## Docker 部署
-
-1. Build Docker image:
-1. 构建 Docker 镜像：
-```bash
-docker build -t pet-classifier .
-```
-
-2. Run container with different configurations:
-2. 使用不同配置运行容器：
-
-### Basic run (use existing model if available, train if not):
-### 基本运行（如果有现有模型则使用，否则训练）：
-```bash
-docker run --gpus all --shm-size=1g -p 7860:7860 \
-    -v ./data:/app/data \
-    -v ./models:/app/models \
-    --name pet-classifier \
-    --rm pet-classifier
-```
-
-### Force retrain (ignore existing model):
-### 强制重新训练（忽略现有模型）：
-```bash
-docker run --gpus all --shm-size=1g -p 7860:7860 \
-    -v ./data:/app/data \
-    -v ./models:/app/models \
-    --name pet-classifier \
-    --rm pet-classifier \
-    python src/pet_classifier.py --retrain
-```
-
-### Use specific model without training:
-### 使用指定模型（不进行训练）：
-```bash
-docker run --gpus all --shm-size=1g -p 7860:7860 \
-    -v ./data:/app/data \
-    -v ./models:/app/models \
-    --name pet-classifier \
-    --rm pet-classifier \
-    python src/pet_classifier.py --model-path models/my_custom_model.pkl
-```
-
-### Quick training mode (1 epoch each phase):
-### 快速训练模式（每个阶段 1 轮）：
-```bash
-docker run --gpus all --shm-size=1g -p 7860:7860 \
-    -v ./data:/app/data \
-    -v ./models:/app/models \
-    --name pet-classifier \
-    --rm pet-classifier \
-    python src/pet_classifier.py --retrain --quick-train
-```
-
-### Custom Training Epochs:
-### 自定义训练轮次：
-```bash
-docker run --gpus all --shm-size=1g -p 7860:7860 \
-    -v ./data:/app/data \
-    -v ./models:/app/models \
-    --name pet-classifier \
-    --rm pet-classifier \
-    python src/pet_classifier.py --retrain --epochs-frozen 5 --epochs-unfrozen 10
-```
-
-### Full training with custom configuration:
-### 使用自定义配置的完整训练：
-```bash
-docker run --gpus all --shm-size=1g -p 7860:7860 \
-    -v ./data:/app/data \
-    -v ./models:/app/models \
-    --name pet-classifier \
-    --rm pet-classifier \
-    python src/pet_classifier.py --retrain \
-        --epochs-frozen 5 \
-        --epochs-unfrozen 10 \
-        --lr-frozen 1e-3 \
-        --lr-unfrozen 1e-5 \
-        --model-path models/custom_model.pkl
-```
-
-## Run Trainer Script Usage
-## 训练脚本使用说明
-
-The `run_trainer.sh` script provides a convenient way to manage model training with different configurations.
-`run_trainer.sh` 脚本提供了一种便捷的方式来管理不同配置的模型训练。
-
-### Basic Usage
-### 基本用法
-
-```bash
-# Start training with default settings
-# 使用默认设置开始训练
-./run_trainer.sh
-
-# Force retrain the model
-# 强制重新训练模型
-./run_trainer.sh --retrain
-
-# Quick training mode (1 epoch each phase)
-# 快速训练模式（每个阶段1轮）
-./run_trainer.sh --quick-train
-```
-
-### Advanced Usage
-### 高级用法
-
-```bash
-# Custom epochs and learning rates
-# 自定义训练轮次和学习率
-./run_trainer.sh --retrain \
-    --epochs-frozen 5 \
-    --epochs-unfrozen 10 \
-    --lr-frozen 1e-3 \
-    --lr-unfrozen 1e-5
-
-# Train with larger image size
-# 使用更大的图片尺寸训练
-./run_trainer.sh --retrain \
-    --image-size 448 \
-    --batch-size 16
-
-# Save model to custom path
-# 将模型保存到自定义路径
-./run_trainer.sh --retrain \
-    --model-path models/custom_model.pkl
-```
-
-### Environment Variables
-### 环境变量
-
-You can configure the following environment variables before running the script:
-在运行脚本之前，你可以配置以下环境变量：
-
-```bash
-# Set CUDA device
-# 设置 CUDA 设备
-export CUDA_VISIBLE_DEVICES=0
-
-# Set number of workers for data loading
-# 设置数据加载的工作进程数
-export NUM_WORKERS=4
-```
-
-The web interface will be available at http://localhost:7860
-Web 界面将在 http://localhost:7860 可用
 
 ## Usage
 ## 使用说明
