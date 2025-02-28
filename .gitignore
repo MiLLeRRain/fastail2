@@ -1,0 +1,40 @@
+# Data directory
+data/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Virtual environments
+venv/
+env/
+.env/
+
+# IDE
+.vscode/
+.idea/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Model files
+*.pth
+*.h5
+models/*.pkl
+
+# Logs
+*.log
+
+# Local development settings
+.env
+.env.local
+
+# System files
+.DS_Store
+Thumbs.db
