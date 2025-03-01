@@ -113,12 +113,16 @@ def create_gradio_interface(classifier):
         result = classifier.predict(image)
         return f"Breed: {result['breed']}\nConfidence: {result['confidence']}"
     
+    # Get the list of breeds from classifier vocabulary
+    breeds = classifier.learn.dls.vocab
+    breeds_list = ", ".join(breeds)
+    
     interface = gr.Interface(
         fn=classify_image,
         inputs=gr.Image(),
         outputs=gr.Textbox(),
         title="Pet Breed Classifier",
-        description="Upload a pet image to identify its breed.",
+        description=f"Upload a pet image to identify its breed.\n\nThis model can classify 37 pet breeds: {breeds_list}",
         theme=gr.themes.Soft()
     )
     

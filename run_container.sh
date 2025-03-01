@@ -85,7 +85,7 @@ while true; do
                 --name pet-classifier \
                 --rm \
                 pet-classifier \
-                python src/pet_classifier.py --no-retrain"
+                python src/pet_classifier.py"
             break
             ;;
         2)  # Quick training
@@ -95,7 +95,7 @@ while true; do
                 --name pet-classifier \
                 --rm \
                 pet-classifier \
-                python src/pet_classifier.py --retrain --quick-train"
+                python src/pet_classifier.py --retrain --epochs-frozen 1 --epochs-unfrozen 1"
             break
             ;;
         3)  # Custom training

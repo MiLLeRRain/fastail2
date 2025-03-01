@@ -12,6 +12,11 @@ RUN apt-get update && apt-get install -y \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Remove build dependencies to reduce image size
+RUN apt-get remove --purge -y build-essential && \
+    apt-get autoremove -y && \
+    apt-get clean
+
 # Runtime stage
 FROM python:3.9-slim
 
@@ -23,9 +28,8 @@ COPY --from=builder /usr/local/lib/python3.9/site-packages/ /usr/local/lib/pytho
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 
-# Copy source code and data (these layers will be rebuilt when files change)
+# Copy source code
 COPY src/ ./src/
-COPY data/ ./data/
 
 # Expose port for Gradio interface
 EXPOSE 7860

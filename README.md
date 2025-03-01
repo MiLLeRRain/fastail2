@@ -48,68 +48,64 @@ Use the provided script to download and extract the Oxford-IIIT Pet Dataset:
 This will automatically download and prepare the dataset in the correct format for training.
 这将自动下载数据集并准备好用于训练的正确格式。
 
-## Run Trainer Script Usage
-## 训练脚本使用说明
+## Container Script Usage
+## 容器脚本使用说明
 
-The `run_trainer.sh` script provides a convenient way to manage model training with different configurations.
-`run_trainer.sh` 脚本提供了一种便捷的方式来管理不同配置的模型训练。
+The `run_container.sh` script provides a convenient way to manage model training with different configurations.
+`run_container.sh` 脚本提供了一种便捷的方式来管理不同配置的模型训练。
 
 ### Basic Usage
 ### 基本用法
 
 ```bash
-# Start training with default settings
-# 使用默认设置开始训练
-./run_trainer.sh
-
-# Force retrain the model
-# 强制重新训练模型
-./run_trainer.sh --retrain
-
-# Quick training mode (1 epoch each phase)
-# 快速训练模式（每个阶段1轮）
-./run_trainer.sh --quick-train
+# Start the container script and follow the interactive menu
+# 启动容器脚本并按照交互式菜单操作
+./run_container.sh
 ```
+
+The script will present a menu with the following options:
+脚本将显示以下选项的菜单：
+
+1. Use existing model (no training)
+   使用现有模型（不进行训练）
+2. Quick training mode (1 epoch each phase)
+   快速训练模式（每个阶段1轮）
+3. Full training with custom configuration
+   使用自定义配置进行完整训练
+4. Use specific model file
+   使用特定的模型文件
+5. Exit
+   退出
 
 ### Advanced Usage
 ### 高级用法
 
-```bash
-# Custom epochs and learning rates
-# 自定义训练轮次和学习率
-./run_trainer.sh --retrain \
-    --epochs-frozen 5 \
-    --epochs-unfrozen 10 \
-    --lr-frozen 1e-3 \
-    --lr-unfrozen 1e-5
+When selecting option 3 (Full training with custom configuration), you can customize the following parameters:
+选择选项 3（使用自定义配置进行完整训练）时，您可以自定义以下参数：
 
-# Train with larger image size
-# 使用更大的图片尺寸训练
-./run_trainer.sh --retrain \
-    --image-size 448 \
-    --batch-size 16
+- Number of epochs for frozen layers (默认：5)
+- Number of epochs for unfrozen layers (默认：10)
+- Learning rate for frozen layers (默认：1e-3)
+- Minimum learning rate for unfrozen layers (默认：1e-6)
+- Maximum learning rate for unfrozen layers (默认：1e-4)
 
-# Save model to custom path
-# 将模型保存到自定义路径
-./run_trainer.sh --retrain \
-    --model-path models/custom_model.pkl
-```
+When selecting option 4 (Use specific model file), you can specify the model path relative to the models directory.
+选择选项 4（使用特定的模型文件）时，您可以指定相对于 models 目录的模型路径。
 
-### Environment Variables
-### 环境变量
+### Docker Environment
+### Docker 环境
 
-You can configure the following environment variables before running the script:
-在运行脚本之前，你可以配置以下环境变量：
+The `run_container.sh` script manages Docker containers with the following features:
+`run_container.sh` 脚本管理具有以下特性的 Docker 容器：
 
-```bash
-# Set CUDA device
-# 设置 CUDA 设备
-export CUDA_VISIBLE_DEVICES=0
-
-# Set number of workers for data loading
-# 设置数据加载的工作进程数
-export NUM_WORKERS=4
-```
+- Automatically checks if Docker and NVIDIA Docker runtime are installed
+  自动检查是否安装了 Docker 和 NVIDIA Docker 运行时
+- Builds the Docker image if it doesn't exist
+  如果 Docker 镜像不存在，则构建它
+- Mounts data and models directories for persistence
+  挂载数据和模型目录以实现持久化
+- Configures GPU access for training
+  配置用于训练的 GPU 访问权限
 
 ## Docker Deployment
 ## Docker 部署
