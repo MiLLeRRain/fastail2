@@ -19,6 +19,14 @@ This project implements a pet breed classification system with the following fea
 - Docker deployment support
 - Docker 容器化部署支持
 
+## Live Demo
+## 在线演示
+
+Try out the live demo on Hugging Face Spaces:
+在 Hugging Face Spaces 上试用在线演示：
+
+🔗 [Pet Breed Classifier Demo](https://huggingface.co/spaces/JinApang/pet_classifier)
+
 ## Project Structure
 ## 项目结构
 
