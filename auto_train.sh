@@ -12,6 +12,32 @@ MODEL_PATH="models/pet_classifier.pkl"
 HF_SPACE="JinApang/pet_classifier"  # Replace with your actual Hugging Face space name
 LOG_FILE="training_$(date +%Y%m%d_%H%M%S).log"
 
+# Parse command-line arguments
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --epochs-frozen)
+      EPOCHS_FROZEN="$2"
+      shift 2
+      ;;
+    --epochs-unfrozen)
+      EPOCHS_UNFROZEN="$2"
+      shift 2
+      ;;
+    --lr-frozen)
+      LR_FROZEN="$2"
+      shift 2
+      ;;
+    --lr-unfrozen)
+      LR_UNFROZEN="$2"
+      shift 2
+      ;;
+    *)
+      echo "Unknown parameter: $1"
+      exit 1
+      ;;
+  esac
+done
+
 # Display banner
 echo "=============================================="
 echo "  Pet Breed Classifier - Auto Training Tool"
