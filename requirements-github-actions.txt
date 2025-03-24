@@ -1,0 +1,15 @@
+# Special requirements file for GitHub Actions with fixed versions
+torch==1.12.1
+torchvision==0.13.1
+fastai==2.7.10
+gradio>=3.0.0
+numpy>=1.21.0
+pillow>=9.0.0
+psutil>=5.8.0
+matplotlib>=3.5.0
+huggingface_hub>=0.10.0
+requests>=2.25.0
+tqdm>=4.60.0
+scikit-learn>=1.0.0
+pandas>=1.3.0
+# Add any other dependencies needed for GitHub Actions

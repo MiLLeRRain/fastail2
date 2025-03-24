@@ -123,12 +123,26 @@ handle_error() {
 
 # Start training
 echo "Starting model training..."
-python src/pet_classifier.py --retrain \
-    --epochs-frozen $EPOCHS_FROZEN \
-    --epochs-unfrozen $EPOCHS_UNFROZEN \
-    --lr-frozen $LR_FROZEN \
-    --lr-unfrozen $LR_UNFROZEN \
-    --model-path $MODEL_PATH 2>&1 | tee $LOG_FILE
+
+# First, try running with a compatibility fix for beartype issues
+if python -c "import sys; sys.modules['beartype'] = type('', (), {'beartype': lambda f: f}); import torch; print('Compatibility mode enabled')" 2>/dev/null; then
+    echo "Using compatibility mode for beartype..."
+    python -c "import sys; sys.modules['beartype'] = type('', (), {'beartype': lambda f: f}); import torch; exec(open('src/pet_classifier.py').read())" -- --retrain \
+        --epochs-frozen $EPOCHS_FROZEN \
+        --epochs-unfrozen $EPOCHS_UNFROZEN \
+        --lr-frozen $LR_FROZEN \
+        --lr-unfrozen $LR_UNFROZEN \
+        --model-path $MODEL_PATH 2>&1 | tee $LOG_FILE
+else
+    # Fallback to normal execution
+    echo "Using standard mode..."
+    python src/pet_classifier.py --retrain \
+        --epochs-frozen $EPOCHS_FROZEN \
+        --epochs-unfrozen $EPOCHS_UNFROZEN \
+        --lr-frozen $LR_FROZEN \
+        --lr-unfrozen $LR_UNFROZEN \
+        --model-path $MODEL_PATH 2>&1 | tee $LOG_FILE
+fi
 
 if [ $? -ne 0 ]; then
     handle_error "Training failed. Check $LOG_FILE for details."

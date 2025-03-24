@@ -313,6 +313,19 @@ huggingface-cli repo list --spaces
 huggingface-cli repo info spaces/username/space-name
 ```
 
+**Error: unsupported operand type(s) for |: 'BypassNewMeta' and 'torch._C._TensorMeta'**
+**错误：不支持的操作类型：'BypassNewMeta' 和 'torch._C._TensorMeta'**
+
+This error occurs due to incompatibilities between beartype (a type checking library) and PyTorch in certain Python versions. To fix:
+这个错误是由于 beartype（一个类型检查库）和 PyTorch 在某些 Python 版本中的不兼容性引起的。修复方法：
+
+1. Use Python 3.8 instead of Python 3.9 or 3.10
+1. 使用 Python 3.8 而不是 Python 3.9 或 3.10
+2. Downgrade or pin the beartype package version
+2. 降级或固定 beartype 包的版本
+3. Use the `requirements-github-actions.txt` file for GitHub Actions workflows
+3. 在 GitHub Actions 工作流中使用 `requirements-github-actions.txt` 文件
+
 The workflow is configured to use non-interactive authentication for CI environments, avoiding the terminal interaction issues.
 工作流程配置为在 CI 环境中使用非交互式身份验证，避免终端交互问题。
 
@@ -542,3 +555,4 @@ The script provides options for:
 
 MIT License
 MIT 许可证
+````
