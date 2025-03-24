@@ -281,6 +281,38 @@ If you encounter authentication issues with Hugging Face in GitHub Actions:
 3. Verify the Hugging Face space name in the `auto_train.sh` script is correct
 3. 验证 `auto_train.sh` 脚本中的 Hugging Face space 名称是否正确
 
+#### Common Errors and Solutions
+#### 常见错误和解决方案
+
+**Error: Failed to clone Hugging Face space repository**
+**错误：无法克隆 Hugging Face space 仓库**
+
+This usually indicates one of these issues:
+这通常表示以下问题之一：
+
+1. **The space doesn't exist**: Verify the space name is correct (e.g., "username/space-name")
+1. **空间不存在**：验证空间名称是否正确（例如，"username/space-name"）
+2. **Permission denied**: Make sure your token has write access to the space
+2. **权限被拒绝**：确保您的令牌对该空间有写入权限
+3. **Token issue**: Regenerate your Hugging Face token and update it in GitHub secrets
+3. **令牌问题**：重新生成您的 Hugging Face 令牌并在 GitHub 密钥中更新它
+4. **Space visibility**: Private spaces require proper authentication
+4. **空间可见性**：私有空间需要适当的身份验证
+
+To troubleshoot:
+故障排除：
+
+```bash
+# Check if you can authenticate with Hugging Face
+huggingface-cli whoami
+
+# List spaces you have access to
+huggingface-cli repo list --spaces
+
+# Verify the space exists and you have access
+huggingface-cli repo info spaces/username/space-name
+```
+
 The workflow is configured to use non-interactive authentication for CI environments, avoiding the terminal interaction issues.
 工作流程配置为在 CI 环境中使用非交互式身份验证，避免终端交互问题。
 

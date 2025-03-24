@@ -159,6 +159,13 @@ if $PUBLISH_TO_HF; then
         fi
     fi
     
+    # Verify Hugging Face authentication
+    if ! huggingface-cli whoami &>/dev/null; then
+        handle_error "Failed to authenticate with Hugging Face. Please check your credentials."
+    else
+        echo "Successfully authenticated with Hugging Face as: $(huggingface-cli whoami)"
+    fi
+    
     # Check if git-lfs is installed
     if ! command -v git-lfs &> /dev/null; then
         echo "Error: git-lfs is required but not installed."
@@ -173,11 +180,45 @@ if $PUBLISH_TO_HF; then
     TEMP_DIR=$(mktemp -d)
     echo "Created temporary directory: $TEMP_DIR"
     
-    # Clone the Hugging Face space repository
-    echo "Cloning Hugging Face space repository..."
+    # Initialize git-lfs
+    echo "Initializing git-lfs..."
     git lfs install
     
-    git clone https://huggingface.co/spaces/$HF_SPACE $TEMP_DIR || handle_error "Failed to clone Hugging Face space repository"
+    # Check if the space exists
+    echo "Checking if Hugging Face Space exists: $HF_SPACE"
+    if ! huggingface-cli repo info spaces/$HF_SPACE &>/dev/null; then
+        echo "Warning: Hugging Face Space $HF_SPACE may not exist or you may not have access to it."
+        echo "Available spaces for your account:"
+        huggingface-cli repo list --spaces
+        
+        if read_yes_no "Do you want to continue anyway?" "n"; then
+            echo "Proceeding with clone attempt..."
+        else
+            handle_error "Operation cancelled. Please check the space name and your permissions."
+        fi
+    fi
+    
+    # Clone with verbose output and error handling
+    echo "Cloning Hugging Face space repository..."
+    if ! git clone https://huggingface.co/spaces/$HF_SPACE $TEMP_DIR --verbose; then
+        echo "Clone failed. Attempting alternative methods..."
+        
+        # Try with personal access token if available
+        if [ -n "$HUGGINGFACE_TOKEN" ]; then
+            echo "Trying to clone with personal access token..."
+            if ! git clone https://$HUGGINGFACE_TOKEN@huggingface.co/spaces/$HF_SPACE $TEMP_DIR --verbose; then
+                handle_error "Failed to clone repository with token. Please check the space name and your permissions."
+            fi
+        else
+            # Try with SSH if available
+            echo "Trying to clone with SSH..."
+            if ! git clone git@hf.co:spaces/$HF_SPACE $TEMP_DIR --verbose; then
+                handle_error "Failed to clone repository with SSH. Please check the space name, your permissions, and SSH setup."
+            fi
+        fi
+    fi
+    
+    echo "Repository cloned successfully to $TEMP_DIR"
     
     # Copy the trained model and necessary files
     echo "Copying files to the repository..."

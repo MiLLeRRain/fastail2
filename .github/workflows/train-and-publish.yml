@@ -63,6 +63,16 @@ jobs:
         sudo apt-get install -y git-lfs
         git lfs install
 
+    - name: Debug Hugging Face Authentication
+      run: |
+        echo "Setting up Hugging Face credentials..."
+        pip install huggingface_hub
+        echo "${{ secrets.HUGGINGFACE_TOKEN }}" | huggingface-cli login --token-stdin
+        echo "Checking authentication status:"
+        huggingface-cli whoami
+        echo "Listing available spaces:"
+        huggingface-cli repo list --spaces
+
     - name: Run the auto training script
       run: |
         chmod +x auto_train.sh
@@ -73,6 +83,9 @@ jobs:
                         --epochs-unfrozen ${{ github.event.inputs.epochs_unfrozen }} \
                         --lr-frozen ${{ github.event.inputs.lr_frozen }} \
                         --lr-unfrozen ${{ github.event.inputs.lr_unfrozen }}
+      env:
+        # Make token available to the script
+        HUGGINGFACE_TOKEN: ${{ secrets.HUGGINGFACE_TOKEN }}
 
     - name: Clean up Docker resources after build
       run: docker system prune -af --volumes
