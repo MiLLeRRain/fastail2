@@ -41,6 +41,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+        pip install huggingface_hub
 
     - name: Clean up Docker resources before build
       run: docker system prune -af --volumes
@@ -56,22 +57,23 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-buildx-
 
+    - name: Install Git LFS
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y git-lfs
+        git lfs install
+
     - name: Run the auto training script
       run: |
         chmod +x auto_train.sh
+        # Set environment variable to indicate we're in GitHub Actions
+        export GITHUB_ACTIONS=true
+        export HUGGINGFACE_TOKEN=${{ secrets.HUGGINGFACE_TOKEN }}
         ./auto_train.sh --epochs-frozen ${{ github.event.inputs.epochs_frozen }} \
                         --epochs-unfrozen ${{ github.event.inputs.epochs_unfrozen }} \
                         --lr-frozen ${{ github.event.inputs.lr_frozen }} \
                         --lr-unfrozen ${{ github.event.inputs.lr_unfrozen }}
 
-    - name: Login to Hugging Face
-      run: huggingface-cli login
-      env:
-        # This uses the HUGGINGFACE_TOKEN secret configured in the repository settings
-        # To add this secret, go to your repository -> Settings -> Secrets and variables -> Actions
-        # Then click "New repository secret", name it "HUGGINGFACE_TOKEN" and paste your token from huggingface.co
-        HUGGINGFACE_TOKEN: ${{ secrets.HUGGINGFACE_TOKEN }}
-        
     - name: Clean up Docker resources after build
       run: docker system prune -af --volumes
       if: always()  # Run this step even if previous steps fail

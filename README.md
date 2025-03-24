@@ -268,6 +268,22 @@ To allow GitHub Actions to publish to your Hugging Face Space, you need to add y
 Once configured, the GitHub Actions workflow can be triggered manually from the "Actions" tab in your repository.
 配置完成后，可以从仓库的 "Actions" 标签页手动触发 GitHub Actions 工作流。
 
+#### Troubleshooting GitHub Actions
+#### GitHub Actions 故障排除
+
+If you encounter authentication issues with Hugging Face in GitHub Actions:
+如果您在 GitHub Actions 中遇到 Hugging Face 的身份验证问题：
+
+1. Make sure your `HUGGINGFACE_TOKEN` secret is correctly set in the repository settings
+1. 确保您的 `HUGGINGFACE_TOKEN` 密钥在仓库设置中正确设置
+2. Check that your token has write permissions for the Hugging Face space
+2. 检查您的令牌对 Hugging Face space 具有写入权限
+3. Verify the Hugging Face space name in the `auto_train.sh` script is correct
+3. 验证 `auto_train.sh` 脚本中的 Hugging Face space 名称是否正确
+
+The workflow is configured to use non-interactive authentication for CI environments, avoiding the terminal interaction issues.
+工作流程配置为在 CI 环境中使用非交互式身份验证，避免终端交互问题。
+
 ### Requirements
 ### 要求
 

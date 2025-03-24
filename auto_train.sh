@@ -143,7 +143,8 @@ if $PUBLISH_TO_HF; then
     # Check if running in GitHub Actions
     if [ -n "$GITHUB_ACTIONS" ] && [ -n "$HUGGINGFACE_TOKEN" ]; then
         echo "Running in GitHub Actions with HUGGINGFACE_TOKEN"
-        echo "$HUGGINGFACE_TOKEN" | huggingface-cli login --token-stdin
+        # Use non-interactive authentication for CI environments
+        huggingface-cli login --token "$HUGGINGFACE_TOKEN" --add-to-git-credential
     else
         # Check if huggingface_hub is installed
         if ! pip list | grep -q "huggingface-hub"; then
@@ -152,7 +153,7 @@ if $PUBLISH_TO_HF; then
         fi
         
         # Interactive login if not in CI environment
-        if ! huggingface-cli login; then
+        if ! huggingface-cli whoami &>/dev/null; then
             echo "Please login to Hugging Face:"
             huggingface-cli login
         fi
@@ -175,10 +176,6 @@ if $PUBLISH_TO_HF; then
     # Clone the Hugging Face space repository
     echo "Cloning Hugging Face space repository..."
     git lfs install
-    if ! huggingface-cli login; then
-        echo "Please login to Hugging Face:"
-        huggingface-cli login
-    fi
     
     git clone https://huggingface.co/spaces/$HF_SPACE $TEMP_DIR || handle_error "Failed to clone Hugging Face space repository"
     
