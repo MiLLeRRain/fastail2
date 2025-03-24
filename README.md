@@ -200,8 +200,8 @@ docker run --gpus all --shm-size=1g -p 7860:7860 \
 ## Auto Training and Deployment
 ## 自动训练和部署
 
-The `auto_train.sh` script provides a convenient way to retrain the model with default parameters and publish it to Hugging Face Spaces.
-`auto_train.sh` 脚本提供了一种便捷的方式来使用默认参数重新训练模型并将其发布到 Hugging Face Spaces。
+The `auto_train.sh` script provides a convenient way to retrain the model with customizable parameters and optionally publish it to Hugging Face Spaces.
+`auto_train.sh` 脚本提供了一种便捷的方式来使用可自定义参数重新训练模型，并可选择性地将其发布到 Hugging Face Spaces。
 
 ### Usage
 ### 使用方法
@@ -216,23 +216,33 @@ chmod +x auto_train.sh
 ./auto_train.sh
 ```
 
-The script will:
-该脚本将：
+The script provides an interactive interface to:
+该脚本提供了一个交互式界面，可以：
 
-1. Retrain the model with the following default parameters:
-   使用以下默认参数重新训练模型：
-   - Frozen epochs: 5
-   - Unfrozen epochs: 10
-   - Frozen learning rate: 1e-3
-   - Unfrozen learning rate: 1e-5
+1. Customize training parameters or use defaults:
+   自定义训练参数或使用默认值：
+   - Frozen epochs (默认: 5)
+   - Unfrozen epochs (默认: 10)
+   - Frozen learning rate (默认: 1e-3)
+   - Unfrozen learning rate (默认: 1e-5)
+   - Model save path (默认: models/pet_classifier.pkl)
 
-2. Save the model to `models/pet_classifier.pkl`
-   将模型保存到 `models/pet_classifier.pkl`
+2. Choose whether to publish to Hugging Face:
+   选择是否发布到 Hugging Face：
+   - Yes: Specify your Hugging Face space name
+   - No: Only save the model locally
 
-3. Publish the model to your Hugging Face Space
-   将模型发布到您的 Hugging Face Space
+3. Review and confirm your settings before proceeding
+   在继续之前审查并确认您的设置
 
-4. Update the README on Hugging Face with training information
+If you choose to publish to Hugging Face, the script will:
+如果您选择发布到 Hugging Face，脚本将：
+
+1. Save the trained model
+   保存训练好的模型
+2. Upload it to your Hugging Face Space
+   将其上传到您的 Hugging Face Space
+3. Update the README on Hugging Face with training information
    使用训练信息更新 Hugging Face 上的 README
 
 ### Requirements
