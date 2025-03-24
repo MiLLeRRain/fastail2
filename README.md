@@ -197,6 +197,51 @@ docker run --gpus all --shm-size=1g -p 7860:7860 \
         --model-path models/custom_model.pkl
 ```
 
+## Auto Training and Deployment
+## 自动训练和部署
+
+The `auto_train.sh` script provides a convenient way to retrain the model with default parameters and publish it to Hugging Face Spaces.
+`auto_train.sh` 脚本提供了一种便捷的方式来使用默认参数重新训练模型并将其发布到 Hugging Face Spaces。
+
+### Usage
+### 使用方法
+
+```bash
+# Make the script executable
+# 使脚本可执行
+chmod +x auto_train.sh
+
+# Run the auto training and deployment script
+# 运行自动训练和部署脚本
+./auto_train.sh
+```
+
+The script will:
+该脚本将：
+
+1. Retrain the model with the following default parameters:
+   使用以下默认参数重新训练模型：
+   - Frozen epochs: 5
+   - Unfrozen epochs: 10
+   - Frozen learning rate: 1e-3
+   - Unfrozen learning rate: 1e-5
+
+2. Save the model to `models/pet_classifier.pkl`
+   将模型保存到 `models/pet_classifier.pkl`
+
+3. Publish the model to your Hugging Face Space
+   将模型发布到您的 Hugging Face Space
+
+4. Update the README on Hugging Face with training information
+   使用训练信息更新 Hugging Face 上的 README
+
+### Requirements
+### 要求
+
+- Hugging Face CLI (`pip install huggingface-hub`)
+- Git LFS (for handling large model files)
+- Valid Hugging Face credentials with write access to your space
+
 ## Development Environment
 ## 开发环境
 
