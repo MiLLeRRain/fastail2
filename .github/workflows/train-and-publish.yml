@@ -1,0 +1,67 @@
+name: Train and Publish Model
+
+on:
+  workflow_dispatch:
+    inputs:
+      epochs_frozen:
+        description: 'Number of epochs for frozen layers'
+        required: false
+        default: '5'
+        type: number
+      epochs_unfrozen:
+        description: 'Number of epochs for unfrozen layers'
+        required: false
+        default: '10'
+        type: number
+      lr_frozen:
+        description: 'Learning rate for frozen layers'
+        required: false
+        default: '1e-3'
+        type: string
+      lr_unfrozen:
+        description: 'Learning rate for unfrozen layers'
+        required: false
+        default: '1e-5'
+        type: string
+
+jobs:
+  train-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out the repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'  # Specify the Python version you need
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Cache Docker layers
+      uses: actions/cache@v3
+      with:
+        path: /tmp/.buildx-cache
+        key: ${{ runner.os }}-buildx-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-buildx-
+
+    - name: Run the auto training script
+      run: |
+        chmod +x auto_train.sh
+        ./auto_train.sh --epochs-frozen ${{ github.event.inputs.epochs_frozen }} \
+                        --epochs-unfrozen ${{ github.event.inputs.epochs_unfrozen }} \
+                        --lr-frozen ${{ github.event.inputs.lr_frozen }} \
+                        --lr-unfrozen ${{ github.event.inputs.lr_unfrozen }}
+
+    - name: Login to Hugging Face
+      run: huggingface-cli login
+      env:
+        HUGGINGFACE_TOKEN: ${{ secrets.HUGGINGFACE_TOKEN }}
