@@ -200,8 +200,8 @@ docker run --gpus all --shm-size=1g -p 7860:7860 \
 ## Auto Training and Deployment
 ## 自动训练和部署
 
-The `auto_train.sh` script provides a convenient way to retrain the model with customizable parameters and optionally publish it to Hugging Face Spaces.
-`auto_train.sh` 脚本提供了一种便捷的方式来使用可自定义参数重新训练模型，并可选择性地将其发布到 Hugging Face Spaces。
+The `auto_train.sh` script provides a convenient way to retrain the model with default parameters and publish it to Hugging Face Spaces.
+`auto_train.sh` 脚本提供了一种便捷的方式来使用默认参数重新训练模型并将其发布到 Hugging Face Spaces。
 
 ### Usage
 ### 使用方法
@@ -216,34 +216,57 @@ chmod +x auto_train.sh
 ./auto_train.sh
 ```
 
-The script provides an interactive interface to:
-该脚本提供了一个交互式界面，可以：
+The script will:
+该脚本将：
 
-1. Customize training parameters or use defaults:
-   自定义训练参数或使用默认值：
-   - Frozen epochs (默认: 5)
-   - Unfrozen epochs (默认: 10)
-   - Frozen learning rate (默认: 1e-3)
-   - Unfrozen learning rate (默认: 1e-5)
-   - Model save path (默认: models/pet_classifier.pkl)
+1. Retrain the model with the following default parameters:
+   使用以下默认参数重新训练模型：
+   - Frozen epochs: 5
+   - Unfrozen epochs: 10
+   - Frozen learning rate: 1e-3
+   - Unfrozen learning rate: 1e-5
 
-2. Choose whether to publish to Hugging Face:
-   选择是否发布到 Hugging Face：
-   - Yes: Specify your Hugging Face space name
-   - No: Only save the model locally
+2. Save the model to `models/pet_classifier.pkl`
+   将模型保存到 `models/pet_classifier.pkl`
 
-3. Review and confirm your settings before proceeding
-   在继续之前审查并确认您的设置
+3. Publish the model to your Hugging Face Space
+   将模型发布到您的 Hugging Face Space
 
-If you choose to publish to Hugging Face, the script will:
-如果您选择发布到 Hugging Face，脚本将：
-
-1. Save the trained model
-   保存训练好的模型
-2. Upload it to your Hugging Face Space
-   将其上传到您的 Hugging Face Space
-3. Update the README on Hugging Face with training information
+4. Update the README on Hugging Face with training information
    使用训练信息更新 Hugging Face 上的 README
+
+### GitHub Actions Integration
+### GitHub Actions 集成
+
+This project includes a GitHub Actions workflow that can automatically train and publish your model to Hugging Face Spaces.
+本项目包含一个 GitHub Actions 工作流，可以自动训练模型并发布到 Hugging Face Spaces。
+
+#### Setting up Hugging Face Token in GitHub
+#### 在 GitHub 中设置 Hugging Face 令牌
+
+To allow GitHub Actions to publish to your Hugging Face Space, you need to add your Hugging Face token as a GitHub secret:
+要允许 GitHub Actions 发布到您的 Hugging Face Space，您需要将 Hugging Face 令牌添加为 GitHub 密钥：
+
+1. Generate a Hugging Face token:
+1. 生成 Hugging Face 令牌：
+   - Go to [Hugging Face Settings](https://huggingface.co/settings/tokens)
+   - Click "New token"
+   - Select "Write" access
+   - Give it a name (e.g., "GitHub Actions")
+   - Click "Generate token"
+   - Copy the generated token
+
+2. Add the token to GitHub repository secrets:
+2. 将令牌添加到 GitHub 仓库密钥：
+   - Go to your GitHub repository
+   - Click on "Settings" > "Secrets and variables" > "Actions"
+   - Click "New repository secret"
+   - Name: `HUGGINGFACE_TOKEN`
+   - Value: Paste your Hugging Face token
+   - Click "Add secret"
+
+Once configured, the GitHub Actions workflow can be triggered manually from the "Actions" tab in your repository.
+配置完成后，可以从仓库的 "Actions" 标签页手动触发 GitHub Actions 工作流。
 
 ### Requirements
 ### 要求
@@ -399,6 +422,72 @@ python src/pet_classifier.py --retrain --image-size 448 --batch-size 16
 2. 模型训练和测试（Jupyter Notebook）
 3. Packaging and deployment (Docker)
 3. 打包和部署（Docker）
+
+## Docker Resource Optimization
+## Docker 资源优化
+
+This project includes tools and configurations for optimizing Docker resource usage.
+本项目包含用于优化 Docker 资源使用的工具和配置。
+
+### Docker Cleanup Script
+### Docker 清理脚本
+
+The `docker-cleanup.sh` script helps manage Docker resources and optimize disk space:
+`docker-cleanup.sh` 脚本帮助管理 Docker 资源并优化磁盘空间：
+
+```bash
+# Make the script executable
+# 使脚本可执行
+chmod +x docker-cleanup.sh
+
+# Run the Docker cleanup utility
+# 运行 Docker 清理工具
+./docker-cleanup.sh
+```
+
+The script provides options for:
+脚本提供以下选项：
+
+- Removing unused containers
+  移除未使用的容器
+- Removing unused images
+  移除未使用的镜像
+- Removing unused volumes
+  移除未使用的卷
+- Removing unused networks
+  移除未使用的网络
+- Complete system cleanup
+  完整的系统清理
+- Advanced cleanup (including builder cache)
+  高级清理（包括构建缓存）
+
+### Docker Optimization Tips
+### Docker 优化技巧
+
+1. **Layer Caching**: Structure your Dockerfile with frequently changing content at the bottom to maximize cache usage.
+   **层缓存**: 将频繁变化的内容放在 Dockerfile 底部，以最大化缓存使用。
+
+2. **Regular Cleanup**: Run the cleanup script regularly to prevent excess resource usage:
+   **定期清理**: 定期运行清理脚本以防止过度资源使用：
+   ```bash
+   # Remove unused containers
+   docker container prune
+
+   # Remove unused images
+   docker image prune
+
+   # Remove all unused Docker objects
+   docker system prune
+   ```
+
+3. **Multi-stage Builds**: Use multi-stage builds in your Dockerfile to reduce final image size.
+   **多阶段构建**: 在 Dockerfile 中使用多阶段构建以减小最终镜像大小。
+
+4. **Volume Mounting**: Use volume mounting for development to avoid rebuilding images.
+   **卷挂载**: 在开发中使用卷挂载，避免重新构建镜像。
+
+5. **Resource Limits**: Configure resource limits in your Docker Compose or run commands.
+   **资源限制**: 在 Docker Compose 或运行命令中配置资源限制。
 
 ## License
 ## 许可证

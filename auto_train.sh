@@ -140,10 +140,22 @@ echo "Training completed successfully!"
 if $PUBLISH_TO_HF; then
     echo "Preparing to publish to Hugging Face Spaces: $HF_SPACE..."
     
-    # Check if huggingface_hub is installed
-    if ! pip list | grep -q "huggingface-hub"; then
-        echo "Installing huggingface_hub..."
-        pip install huggingface-hub
+    # Check if running in GitHub Actions
+    if [ -n "$GITHUB_ACTIONS" ] && [ -n "$HUGGINGFACE_TOKEN" ]; then
+        echo "Running in GitHub Actions with HUGGINGFACE_TOKEN"
+        echo "$HUGGINGFACE_TOKEN" | huggingface-cli login --token-stdin
+    else
+        # Check if huggingface_hub is installed
+        if ! pip list | grep -q "huggingface-hub"; then
+            echo "Installing huggingface_hub..."
+            pip install huggingface-hub
+        fi
+        
+        # Interactive login if not in CI environment
+        if ! huggingface-cli login; then
+            echo "Please login to Hugging Face:"
+            huggingface-cli login
+        fi
     fi
     
     # Check if git-lfs is installed
